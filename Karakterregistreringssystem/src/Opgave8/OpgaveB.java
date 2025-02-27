@@ -50,6 +50,8 @@ public class OpgaveB {
             if (e.getErrorCode() == 547){
                 if (e.getMessage().contains("check_start_slut")){
                     System.out.println("Slut dato skal være efter start dato");
+                } else if (e.getMessage().contains("ugyldigID")) {
+                    System.out.println("Ugyldigt Eksamens ID");
                 }
             }
         } catch (IOException e) {

@@ -60,8 +60,17 @@ public class OpgaveA {
             int errorCode = e.getErrorCode();
 
             System.out.println(" SQL Fejl: " + e.getMessage() + e.getErrorCode());
-            if (errorCode == 547)
-                System.out.println("Input fejl: Den indskrevne karakter skal være inde for skalaen");
+            if (errorCode == 547) {
+                if (e.getMessage().contains("studieIDCon")){
+                    System.out.println("StudieID Ugyldigt");
+                } else if (e.getMessage().contains("AfviklingsIDCon")) {
+                    System.out.println("Eksamens AfviklingsID Ugyldigt");
+                } else if (e.getMessage().contains("karakterCheck")) {
+                    System.out.println("Input fejl: Den indskrevne karakter skal være inde for skalaen");
+                } else if (e.getMessage().contains("bedømmelsesCheck")) {
+                    System.out.println("Input fejl: Den indskrevne bedømmelse er ikke gyldig");
+                }
+            }
         } catch (IOException e) {
             System.out.println("Input fejl: " + e.getMessage());
         } catch (NumberFormatException e) {
