@@ -16,7 +16,7 @@ public class OpgaveB {
 
             Connection minConnection;
             minConnection = DriverManager
-                    .getConnection("jdbc:sqlserver://LAPTOP-F9FN58TJ\\SQLExpress;databaseName=Karakterregistreringssystem;user=sa;password=123456;");
+                    .getConnection("jdbc:sqlserver://LocalHost\\SQLExpress;databaseName=SQL Obligatorisk opgave 25-02-2025;user=sa;password=Davmeddig1;");
 
             // Læser input fra brugeren
             System.out.println("Indtast termin for eksamensafvikling (f.eks. '2025-01'): ");
@@ -45,7 +45,13 @@ public class OpgaveB {
                 System.out.println("Eksamensafvikling oprettet succesfuldt!");
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Fejl: " + e.getMessage());
+            System.out.println("Fejl: " + e.getErrorCode());
+            if (e.getErrorCode() == 547){
+                if (e.getMessage().contains("check_start_slut")){
+                    System.out.println("Slut dato skal være efter start dato");
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

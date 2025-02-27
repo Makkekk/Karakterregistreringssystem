@@ -16,7 +16,7 @@ public class OpgaveA {
 
                 Connection minConnection;
                 minConnection = DriverManager
-                        .getConnection("jdbc:sqlserver://LAPTOP-F9FN58TJ\\SQLExpress;databaseName=Karakterregistreringssystem;user=sa;password=123456;");
+                        .getConnection("jdbc:sqlserver://LocalHost\\SQLExpress;databaseName=SQL Obligatorisk opgave 25-02-2025;user=sa;password=Davmeddig1;");
 
                 System.out.println("Indtast studieID: ");
                 int studieID = Integer.parseInt(reader.readLine().trim());
