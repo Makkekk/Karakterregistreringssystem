@@ -1,57 +1,77 @@
 package Opgave8;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OpgaveC {
     public static void main(String[] args) {
 
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        // Opretter en liste til at gemme studerende
+        List<Studerende> studerendeList = new ArrayList<>();
 
-            Connection minConnection;
-            minConnection = DriverManager.getConnection(
-                    "jdbc:sqlserver://localhost;databaseName=Karakterregistreringssystem;user=sa;password=dockerStrongPwd123;");
+        // JDBC connection info
+        String url = "jdbc:sqlserver://LAPTOP-F9FN58TJ\\SQLExpress;databaseName=Karakterregistreringssystem;user=sa;password=123456;";
 
-            // Læser input fra brugeren
-            System.out.println("Indtast navn på eksamen: ");
-            String eksamensNavn = reader.readLine().trim();
+        // Bruger BufferedReader til at tage input
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
 
-            System.out.println("Indtast terminen for eksamensafvikling (f.eks. 'S2025'): ");
-            String terminDato = reader.readLine().trim();
+            System.out.println("Indtast navnet på eksamen:");
+            String eksamenNavn = reader.readLine().trim();
 
-            String sql = "INSERT INTO EksamensAfvikling (termin, startsDato, slutsDato, eksamensID) VALUES (?, ?, ?, ?)";
+            System.out.println("Indtast termin:");
+            String termin = reader.readLine().trim();
 
-            PreparedStatement stmt = minConnection.prepareStatement(sql);
-            stmt.setString(1, eksamensNavn);
-            stmt.setString(2, terminDato);
-
-
-            int rowsInserted = stmt.executeUpdate();
-            if (rowsInserted > 0) {
-                System.out.println("Eksamensafvikling oprettet succesfuldt!");
+            // Tjekker om input er gyldigt
+            if (eksamenNavn.isEmpty() || termin.isEmpty()) {
+                System.out.println("Fejl: Eksamensnavn og termin skal være udfyldt.");
+                return;
             }
-            stmt.close();
 
-        } catch (SQLException e) {
-            System.out.println("fejl:  " + e.getMessage());
-            System.out.println("fejl:  " + e.getErrorCode());
+            // SQL-query med parameterisering for at undgå SQL Injection
+            String sql = "SELECT s.navn, s.studieID, eb.karakter " +
+                    "FROM EksamensBesvarelse eb " +
+                    "JOIN Studerende s ON eb.studieID = s.studieID " +
+                    "JOIN Eksamensafvikling ea ON eb.EksamensAfviklingsID = ea.EksamensAfviklingsID " +
+                    "JOIN Eksamen e ON ea.eksamensID = e.eksamensID " +
+                    "WHERE e.eksamensNavn = ? AND ea.termin = ?";
 
-            if (e.getErrorCode() == 547) {
-                if (e.getMessage().contains("check_start_slut")) {
-                    System.out.println("Slutdatoen skal lægge efter startsdato");
-                } else if (e.getMessage().contains("ugyldigID")) {
-                    System.out.println("Ugyldig eksamens id");
+            // Opretter forbindelsen
+            try (Connection connection = DriverManager.getConnection(url);
+                 PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+                // Indsætter brugerinput i SQL-query
+                pstmt.setString(1, eksamenNavn);
+                pstmt.setString(2, termin);
+
+                // Udfører query og henter resultater
+                try (ResultSet res = pstmt.executeQuery()) {
+                    boolean found = false;
+                    System.out.println("\nStuderende, der deltog i eksamen '" + eksamenNavn + "' i termin '" + termin + "':");
+
+                    while (res.next()) {
+                        String navn = res.getString("navn");
+                        int studieID = res.getInt("studieID");
+                        int karakter = res.getInt("karakter");
+
+                        studerendeList.add(new Studerende(navn, studieID, karakter));
+                        System.out.println("Navn: " + navn + ", StudieID: " + studieID + ", Karakter: " + karakter);
+                        found = true;
+                    }
+
+                    if (!found) {
+                        System.out.println("Ingen studerende fundet for denne eksamen og termin.");
+                    }
                 }
             }
 
-
-        } catch (Exception e) {
-            System.out.println("fejl:  " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Databasefejl: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Inputfejl: " + e.getMessage());
         }
     }
 }
