@@ -5,12 +5,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OpgaveC {
     public static void main(String[] args) {
 
+List<Studerende> studerendeList = new ArrayList<>();
 
+String sql = "SELECT navn,studieID,termin from EksamensAfviklingsStuderende ";
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -19,6 +22,11 @@ public class OpgaveC {
                     .getConnection("jdbc:sqlserver://LAPTOP-F9FN58TJ\\SQLExpress;databaseName=tidsregistrering2 klasseeks;user=sa;password=123456;");
 
             Statement stmt = minConnection.createStatement();
+            ResultSet res stmt.executeQuery(sql)) {
+
+                System.out.println("Henter studerende...");
+            }
+
 
             System.out.println("Indtast navnet på eksamen");
             String eksamenNavn = reader.readLine().trim();
@@ -32,7 +40,6 @@ public class OpgaveC {
             }
 
 
-            ResultSet res stmt.executeQuery("Select ");
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
